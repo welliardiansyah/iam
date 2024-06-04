@@ -14,8 +14,14 @@ export class UserEntity {
   @Column({ nullable: true })
   secret: string;
 
+  @Column({ nullable: true })
+  biometric: string;
+
   @Column({ nullable: true, default: false })
   enable2fa: boolean;
+
+  @Column({ nullable: true, default: false })
+  enableBiometric: boolean;
 
   @Column({ nullable: false })
   password: string;

@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { UserEntity } from "../entity/User.entity";
 import { encrypt } from "../helpers/encrypt";
+import { Base32 } from '../utils/base32';
 
 const crypto = require("crypto");
 const OTPAuth = require("otpauth");
@@ -23,9 +24,9 @@ export class FaController {
                 });
             }
 
-            const base32_secret = generateBase32Secret();
+            const base32_secret = await Base32.generateBase32Secret();
             user.secret = base32_secret;
-            
+
             let totp = new OTPAuth.TOTP({
                 issuer: "localhost",
                 label: email,
@@ -37,7 +38,7 @@ export class FaController {
             const otpauth_url = totp.toString();
 
             QRCode.toDataURL(otpauth_url, (err, url) => {
-                if(err) {
+                if (err) {
                     return res.status(500).json({
                         code: 401,
                         status: 'fail',
@@ -123,13 +124,3 @@ export class FaController {
         }
     }
 }
-
-const generateBase32Secret = () => {
-    try {
-        const buffer = crypto.randomBytes(15);
-        const base32 = hiBase32.encode(buffer).replace(/=/g, "").substring(0, 24);
-        return base32;
-    } catch (error) {
-        return error;
-    }
-};
